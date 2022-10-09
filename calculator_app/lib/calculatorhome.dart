@@ -1,5 +1,6 @@
 import 'package:calculator_app/components.dart/buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 class CalculatorApp extends StatefulWidget {
   const CalculatorApp({super.key});
@@ -14,31 +15,45 @@ class _CalculatorAppState extends State<CalculatorApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Center(child: Text("Exalter Calculator")),
+        backgroundColor: const Color.fromARGB(255, 33, 33, 33),
+      ),
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: [
-              const SizedBox(
-                height: 130,
-              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        userInput.toString(),
-                        style: const TextStyle(color: Colors.white),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Text(
+                          userInput.toString(),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 30),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
                       ),
                       Text(
                         answer.toString(),
-                        style: const TextStyle(color: Colors.white),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 30),
                       ),
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(
+                height: 120,
               ),
               Expanded(
                 flex: 2,
@@ -139,7 +154,10 @@ class _CalculatorAppState extends State<CalculatorApp> {
                         ),
                         MyButton(
                           title: "6",
-                          onPress: () {},
+                          onPress: () {
+                            userInput += "6";
+                            setState(() {});
+                          },
                         ),
                         MyButton(
                           title: "-",
@@ -210,12 +228,16 @@ class _CalculatorAppState extends State<CalculatorApp> {
                         ),
                         MyButton(
                           title: "DEL",
-                          onPress: () {},
+                          onPress: () {
+                            userInput =
+                                userInput.substring(0, userInput.length - 1);
+                            setState(() {});
+                          },
                         ),
                         MyButton(
                           title: "=",
                           onPress: () {
-                            userInput += "DEL";
+                            equalPress();
                             setState(() {});
                           },
                           colors: const Color(0xffffa00a),
@@ -230,5 +252,16 @@ class _CalculatorAppState extends State<CalculatorApp> {
         ),
       ),
     );
+  }
+
+  void equalPress() {
+    String finalUserInput = userInput;
+
+    finalUserInput = userInput.replaceAll("x", "*");
+    Parser p = Parser();
+    Expression expression = p.parse(finalUserInput);
+    ContextModel contextModel = ContextModel();
+    double eval = expression.evaluate(EvaluationType.REAL, contextModel);
+    answer = eval.toString();
   }
 }
